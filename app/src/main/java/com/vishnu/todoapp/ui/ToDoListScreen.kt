@@ -1,6 +1,7 @@
 package com.vishnu.todoapp.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vishnu.todoapp.util.ToDoEvents
@@ -22,19 +24,15 @@ import kotlinx.coroutines.flow.collect
 @Composable
 fun TodoListScreen(
     onNavigate: (UIEvent.Navigate) -> Unit,
-    modifier: Modifier,
-    viewModel: TodoViewModel = hiltViewModel()
+    viewModel: TodoViewModel
 ) {
-    val todos = viewModel.todos.collectAsState(initial = emptyList())
+    val todos = viewModel.filteredTodos.collectAsState(initial = emptyList())
     val scaffoldState = rememberScaffoldState()
+    val context = LocalContext.current
+    val searchText = viewModel.searchQuery.collectAsState()
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when(event) {
-                is UIEvent.ShowSnackBar -> {
-                    val result = scaffoldState.snackbarHostState.showSnackbar(
-                        message = event.message,
-                    )
-                }
                 is UIEvent.Navigate -> onNavigate(event)
                 else -> Unit
             }
@@ -53,17 +51,31 @@ fun TodoListScreen(
             }
         }
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(todos.value) { todo ->
-                TodoItem(
-                    todo = todo,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                )
+        Column {
+            TextField(
+                value = searchText.value,
+                onValueChange = {
+                    viewModel.sendTodoEvent(ToDoEvents.SearchQuery(it))
+                },
+                placeholder = {
+                    Text(text = "Search")
+                },
+                label = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(todos.value) { todo ->
+                    TodoItem(
+                        todo = todo,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    )
+                }
             }
         }
+
     }
 }
