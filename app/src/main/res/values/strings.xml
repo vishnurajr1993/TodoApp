@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TodoApp</string>
+    <string name="failed_to_add_todo">Failed to add TODO</string>
+    <string name="save_todo">Save TODO</string>
 </resources>
