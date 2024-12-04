@@ -32,7 +32,7 @@ import javax.inject.Inject
 class TodoViewModel @Inject constructor(
     private val repository: TodoRepository
 ): ViewModel() {
-    val TAG = "TodoViewModelll"
+    val TAG = "TodoViewModel"
     val todos = repository.getAllTodos()
 
     var todoText by mutableStateOf("")
